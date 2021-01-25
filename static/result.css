@@ -1,0 +1,181 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+body {
+    background: white;
+    font-family: 'Open Sans', sans-serif;
+    
+}
+
+.search {
+    width: 50%;
+    position: relative;
+    display: flex;
+    padding: 1%;
+}
+
+.searchTerm {
+    width: 100%;
+    border: 3px solid #00B4CC;
+    border-right: none;
+    padding: 5px;
+    height: 46.5px;
+    border-radius: 5px 0 0 5px;
+    outline: none;
+    color: #9DBFAF;
+}
+
+.searchTerm:focus {
+    color: #00B4CC;
+}
+
+.searchButton {
+    width: 40px;
+    height: 46px;
+    border: 1px solid #00B4CC;
+    background: #00B4CC;
+    text-align: center;
+    color: #fff;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+/*Resize the wrap to see the search bar change!*/
+.divHeader {
+    width: 100%;
+    display: flex;
+}
+
+
+.divWrap {
+    min-width: 1190px;
+    min-height: 1200px;
+}
+
+.contents {
+    width: 48%;
+    position: relative;
+    top: 13%;
+    left: 18%;
+}
+
+.title {
+    padding: 1.5%;
+    border-bottom: 1px solid #dcdcdc;
+}
+
+.media {
+    display: flex;
+}
+
+div > i {
+    cursor: pointer;
+}
+
+h5.mt-0 {
+    color: #000;
+    font-size: 18px;
+    font-weight: bolder;
+}
+
+.media-body {
+    padding-left: 10px;
+}
+
+div.catalog {
+    border-radius: 10px;
+    margin-bottom: 5%;
+}
+
+#yonsei-cata {
+    border: solid 3px #003E7E;
+}
+
+#ewha-cata {
+    border: solid 3px #00462A;
+}
+
+#sogang-cata {
+    border: solid 3px #AF272F;
+    
+}
+
+#yonsei-blocks, #ewha-blocks, #sogang-blocks {
+    padding: 3%;
+}
+
+.more-result > a {
+        text-decoration: none;
+        color: black;
+        float: right;
+        font-weight: bold;
+}
+
+.no-data {
+    padding: 20px 0;
+    border: 1px solid #e6e6e6;
+    color: #737373;
+    text-align: center;
+    margin: 20px 40px;
+}
+
+.no-data > span {
+    display: inline-block;
+    padding: 3px 0 0 15px;
+}
+
+.tg {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.tg td {
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    overflow: hidden;
+    padding: 10px 5px;
+    word-break: normal;
+}
+
+.tg th {
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    overflow: hidden;
+    padding: 10px 5px;
+    word-break: normal;
+}
+
+.tg .tg-8jgo {
+    border-color: #ffffff;
+    text-align: center;
+    vertical-align: top
+}
+
+.tg .tg-id4c {
+    background-color: #fbe1df;
+    border-color: #fbe1df;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: top
+}
+
+.tg .tg-ufv0 {
+    background-color: #fbe1df;
+    border-color: #fbe1df;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle
+}
+
+.tg .tg-v0mg {
+    border-color: #ffffff;
+    text-align: center;
+    vertical-align: middle
+}

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YES LIBRARY</title>
+    <meta property="og:title" content="YES LIBRARY" />
+    <meta property="og:description" content="연대, 이대, 서강대 도서관 통합 검색 서비스" />
+    <meta property="og:image" content="{{ url_for('static', filename='ogimage.png') }}" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='result.css') }}">
+    <!-- <link rel="icon" type="image/png" href="http://example.com/myicon.png"> -->
+    <!-- <link rel="stylesheet" type="text/css" href="result.css"> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+    <script type='text/javascript'>
+        Kakao.init('ff468cbad0feedfb4f4edb3d8e77e622');
+    </script>
+</head>
+
+<body>
+    <div class="divWrap">
+        <div class="divHeader">
+            <div class="logo" style="padding: 1.5%;">
+                <a href="/"><img src="{{ url_for('static', filename='result_logo.PNG') }}" alt=""></a>
+            </div>
+            <div class="search">
+                <input type="text" class="searchTerm" id="searchBox" placeholder="제목과 저자로 검색해주세요. ex) 쇼코의 미소 최은영">
+                <button type="submit" class="searchButton" onclick="searching()">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="divContainer">
+            <div class="contents">
+                <div class="catalog" id='yonsei-cata'>
+                    <div class="title">
+                        <h3 style="color: #003E7E; font-weight: bold;">연세대</h3>
+                    </div>
+                    <div id="yonsei-blocks">
+                        <p class="no-data">
+                            <span>검색 결과를 불러오는 중입니다.</span>
+                        </p>
+                    </div>
+
+                </div>
+                <div class="catalog" id='ewha-cata'>
+                    <div class="title">
+                        <h3 style="color: #00462A; font-weight: bold;">이화여대</h3>
+                    </div>
+                    <div id="ewha-blocks">
+                        <p class="no-data">
+                            <span>검색 결과를 불러오는 중입니다.</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="catalog" id='sogang-cata'>
+                    <div class="title">
+                        <h3 style="color: #AF272F; font-weight: bold;">서강대</h3>
+                    </div>
+                    <div id="sogang-blocks">
+                        <p class="no-data">
+                            <span>검색 결과를 불러오는 중입니다.</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="share">
+                    <a id="kakao-link-btn" href="javascript:sendLink()" style="float: right;">
+                        <span style="color: black; font-weight: bold;">카카오톡 공유하기</span>
+                        <img src="//developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"
+                            style="width: 25px;" />
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+
+            $(document).ready(function () {
+                get_result("{{keyword}}");
+            });
+
+            function get_result(keyword) {
+                // alert(keyword)
+                $.ajax({
+                    type: "GET",
+                    url: `/result/getlist?keyword_give=${keyword}`,
+                    success: function (response) {
+                        if (response['result'] == 'success') {
+                            console.log(response['row'])
+                            // alert(response['msg']);
+                            let row = JSON.parse(response["row"])
+                            let yonsei_list = row['yonsei'];
+                            let ewha_list = row['ewha'];
+                            let sogang_list = row['sogang'];
+                            console.log(yonsei_list);
+                            make_card('yonsei', yonsei_list);
+                            make_card('ewha', ewha_list);
+                            make_card('sogang', sogang_list);
+                            more_result('yonsei', keyword);
+                            more_result('ewha', keyword);
+                            more_result('sogang', keyword);
+                        }
+                    }
+                });
+            }
+
+
+            function openclose(id) {
+                // id 값 post-box의 display 값이 block 이면
+                if ($('#' + id).css('display') == 'block') {
+                    // post-box를 가리고
+                    $('#' + id).hide();
+                } else {
+                    // 아니면 post-box를 펴라
+                    $('#' + id).show();
+                }
+            }
+
+            function make_card(uni_name, uni_list) {
+
+                if (uni_list.length == 0) {
+                    $("#" + uni_name + "-blocks").empty();
+                    empty_result(uni_name);
+                    return;
+                }
+                $("#" + uni_name + "-blocks").empty();
+                for (let i = 0; i < uni_list.length; i++) {
+                    let title = uni_list[i]['title']
+                    let author = uni_list[i]['author']
+                    let bookcover = uni_list[i]['bookcover']
+                    let book_url = uni_list[i]['book_url']
+                    let year = uni_list[i]['year']
+                    let company = uni_list[i]['company']
+                    let loc = uni_list[i]['loc']
+                    let status = uni_list[i]['status']
+
+                    if (loc.length == 1) {
+                        let temp_html = `<div class="media">
+                                                <img src="${bookcover}" onerror="this.src='https://library.yonsei.ac.kr/image/ko/solution/common/ico/type_m_M.png'" class="align-self-center mr-3"
+                                                style="width: 85px; height: 125px; border: 1px solid #d0d0d0;">
+                                                <div class="media-body">
+                                                    <a href="${book_url}">
+                                                        <h5 class="mt-0">${title}</h5>
+                                                    </a>
+                                                    <p>
+                                                        ${author} | ${company} | ${year}
+                                                    </p>
+                                                    <p class="mb-0">
+                                                        ${loc[0]}
+                                                    </p>
+                                                    <div onclick="openclose('${uni_name}-status${i}')">
+                                                        <i class="fa fa-caret-down" aria-hidden="true"></i>
+                                                    </div>
+                                                    <div class="status" style='display : none' id="${uni_name}-status${i}">
+                                                        <table class="tg">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th class="tg-id4c">No.</th>
+                                                                    <th class="tg-ufv0">소장처 / 자료실</th>
+                                                                    <th class="tg-id4c">청구기호</th>
+                                                                    <th class="tg-id4c">도서상태</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id='${uni_name}-table${i}'>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                        $("#" + uni_name + "-blocks").append(temp_html);
+                    } else if (typeof loc[0] == 'undefined') {
+                        let temp_html = `<div class="media">
+                                                <img src="${bookcover}" onerror="this.src='https://library.yonsei.ac.kr/image/ko/solution/common/ico/type_m_M.png'" class="align-self-center mr-3"
+                                                style="width: 85px; height: 125px; border: 1px solid #d0d0d0">
+                                                <div class="media-body">
+                                                    <a href="${book_url}">
+                                                        <h5 class="mt-0">${title}</h5>
+                                                    </a>
+                                                    <p>
+                                                        ${author} | ${company} | ${year}
+                                                    </p>
+                                                    <p class="mb-0">
+                                                    
+                                                    </p>
+                                                    <p class="mb-0">
+                                                    
+                                                    </p>                                                    
+                                                    <div>
+                                                    
+                                                    </div>
+                                                </div>
+                                            </div>`
+                        $("#" + uni_name + "-blocks").append(temp_html);
+                    } else {
+                        {
+                            let temp_html = `<div class="media">
+                                                <img src="${bookcover}" onerror="this.src='https://library.yonsei.ac.kr/image/ko/solution/common/ico/type_m_M.png'" class="align-self-center mr-3"
+                                                style="width: 85px; height: 125px; border: 1px solid #d0d0d0">
+                                                <div class="media-body">
+                                                    <a href="${book_url}">
+                                                        <h5 class="mt-0">${title}</h5>
+                                                    </a>
+                                                    <p>
+                                                        ${author} | ${company} | ${year}
+                                                    </p>
+                                                    <p class="mb-0">
+                                                        ${loc[0]}
+                                                    </p>
+                                                    <p class="mb-0">
+                                                        ${loc[1]}
+                                                    </p>                                                    
+                                                    <div onclick="openclose('${uni_name}-status${i}')">
+                                                        <i class="fa fa-caret-down" aria-hidden="true"></i>
+                                                    </div>
+                                                    <div class="status" style='display : none' id="${uni_name}-status${i}">
+                                                        <table class="tg">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th class="tg-id4c">No.</th>
+                                                                    <th class="tg-ufv0">소장처 / 자료실</th>
+                                                                    <th class="tg-id4c">청구기호</th>
+                                                                    <th class="tg-id4c">도서상태</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id='${uni_name}-table${i}'>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>`
+                            $("#" + uni_name + "-blocks").append(temp_html);
+                        }
+                    }
+
+                    for (let j = 0; j < status.length; j++) {
+                        let book_loc = status[j]['book_loc'];
+                        let callnum = status[j]['callnum'];
+                        let borrow = status[j]['borrow'];
+                        let num = j + 1;
+
+                        let temp_html2 = `<tr>
+                                                <td class="tg-8jgo">${num}</td>
+                                                <td class="tg-v0mg">${book_loc}</td>
+                                                <td class="tg-8jgo">${callnum}</td>
+                                                <td class="tg-8jgo">${borrow}</td>
+                                            </tr>`
+
+                        $('#' + uni_name + '-table' + i).append(temp_html2);
+                    }
+                }
+            }
+
+            function searching() {
+                let keyword = $("#searchBox").val();
+                $.ajax({
+                    type: "POST",
+                    url: "/keywords",
+                    data: { 'keyword_give': keyword },
+                    success: function (response) {
+                        if (response['result'] == 'success') {
+                            alert(response['msg'])
+                            window.location.href = `/result?keyword_give=${keyword}`;
+                        }
+
+                    }
+                });
+            }
+
+            function more_result(uni_name, keyword) {
+                switch (uni_name) {
+                    case 'yonsei':
+                        var uni_url = "https://library.yonsei.ac.kr/main/searchBrief?q=" + keyword;
+                        var temp_html3 = `  <div class="more-result">
+                                                <a href="${uni_url}">
+                                                검색결과 더보기
+                                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                                </a>
+                                            </div>`
+                        $("#yonsei-blocks").append(temp_html3);
+                        break;
+                    case 'ewha':
+                        var uni_url = "http://lib.ewha.ac.kr/search/tot/result?st=KWRD&si=TOTAL&service_type=brief&q=" + keyword;
+                        var temp_html3 = `  <div class="more-result">
+                                                <a href="${uni_url}">
+                                                검색결과 더보기
+                                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                                </a>
+                                            </div>`
+                        $("#ewha-blocks").append(temp_html3);
+                        break;
+                    case 'sogang':
+                        var uni_url = "https://library.sogang.ac.kr/searchTotal/result?st=KWRD&si=TOTAL&q=" + keyword;
+                        var temp_html3 = `  <div class="more-result">
+                                                <a href="${uni_url}">
+                                                검색결과 더보기
+                                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                                </a>
+                                            </div>`
+                        $("#sogang-blocks").append(temp_html3);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            function empty_result(univ) {
+                let empty_temp = `<p class="no-data">
+                                <span>검색 결과가 없습니다.</span>
+                                </p>`;
+                $("#" + univ + "-blocks").append(empty_temp);
+            }
+
+            function sendLink() {
+                Kakao.Link.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: "YES LIBRARY " + '"{{keyword}}"' + " 검색 결과",
+                        description: '연세대, 이화여대, 서강대 도서관 통합 검색',
+                        imageUrl:
+                        "https://i.ibb.co/k9bvpWc/Kakao-Talk-20200707-200011290-05.png",
+                        link: {
+                            mobileWebUrl: 'http://yeslibrary.shop/result?keyword_give=' + "{{keyword}}",
+                            webUrl: 'http://yeslibrary.shop/result?keyword_give=' + "{{keyword}}"
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '웹으로 보기',
+                            link: {
+                                mobileWebUrl: 'http://yeslibrary.shop/result?keyword_give=' + "{{keyword}}",
+                                webUrl: 'http://yeslibrary.shop/result?keyword_give=' + "{{keyword}}"
+                            },
+                        }
+                    ],
+                })
+            }
+        </script>
+</body>
+
+</html>

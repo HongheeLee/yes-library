@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YES LIBRARY</title>
+    <meta property="og:title" content="YES LIBRARY" />
+    <meta property="og:description" content="연대, 이대, 서강대 도서관 통합 검색 서비스" />
+    <meta property="og:image" content="{{ url_for('static', filename='ogimage.png') }}" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+    <!-- <link rel = "stylesheet" type = "text/css" href ="main.css"> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="title" style="text-align: center;">
+            <a href="/"><img src="{{ url_for('static', filename='main_logo.png') }}"></a>
+        </div>
+        <!-- <form action="/result" method="get"> -->
+        <div class="search">
+            <input type="text" class="searchTerm" id="searchBox" placeholder="제목과 저자로 검색해주세요. ex) 쇼코의 미소 최은영">
+            <button type="submit" class="searchButton" onclick="searching()">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+        <!-- </form> -->
+        <div id="recent-list">
+            <span class="recent-item">최근 검색어 : </span>
+        </div>
+
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            recent_keyword();
+        });
+
+        function searching() {
+            let keyword = $("#searchBox").val();
+            $.ajax({
+                type: "POST",
+                url: "/keywords",
+                data: { 'keyword_give': keyword },
+                success: function (response) {
+                    if (response['result'] == 'success'){
+                        // alert(response['msg'])
+                        window.location.href = `/result?keyword_give=${keyword}`;
+                    }
+                    
+                }
+            });
+        }
+
+        function recent_keyword() {
+            $.ajax({
+                type: "GET",
+                url: "/keywords",
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        let keywords = response['keywords'];
+                        for (let i = 0; i < keywords.length; i++) {
+                            let keyword = keywords[i]['keyword'];
+                            let temp_html = `<a href="http://yeslibrary.shop/result?keyword_give=${keyword}">
+                                                <span class="recent-item">${keyword}, </span>
+                                            </a>`
+                            $('#recent-list').append(temp_html);
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
